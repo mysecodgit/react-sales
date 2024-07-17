@@ -26,7 +26,7 @@ import withRouter from "../../components/Common/withRouter";
 //Import Breadcrumb
 import Breadcrumb from "../../components/Common/Breadcrumb";
 
-import avatar from "../../assets/images/users/avatar-1.jpg";
+import avatar from "../../assets/images/users/avatar-2.jpg";
 // actions
 import { editProfile, resetProfileFlag } from "../../store/actions";
 

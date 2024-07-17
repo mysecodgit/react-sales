@@ -63,10 +63,10 @@ const RightSidebar = props => {
               <h5 className="m-0">Settings</h5>
             </div>
 
-            <hr className="my-0" />
+            {/* <hr className="my-0" /> */}
 
             <div className="p-4">
-              <div className="radio-toolbar">
+              {/* <div className="radio-toolbar">
                 <span className="mb-2 d-block">Layouts</span>
                 <input
                   type="radio"
@@ -94,7 +94,7 @@ const RightSidebar = props => {
                   }}
                 />
                 <label htmlFor="radioHorizontal">Horizontal</label>
-              </div>
+              </div> */}
 
               <hr className="mt-1" />
               <div className="radio-toolbar">

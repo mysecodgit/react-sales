@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 import TableContainer from "../../components/Common/TableContainer";
@@ -47,6 +47,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import moment from "moment/moment";
+import { LoggedUserContext } from "../../App";
 
 const Vendors = () => {
   //meta title
@@ -55,19 +56,23 @@ const Vendors = () => {
   const dispatch = useDispatch();
   const [vendor, setVendor] = useState();
   const [isLoading, setLoading] = useState(true);
+  const [user, setUser] = useState();
+
   // validation
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
 
     initialValues: {
-      id: (vendor && vendor._id) || "",
+      id: (vendor && vendor.id) || "",
       name: (vendor && vendor.name) || "",
       phone: (vendor && vendor.phone) || "",
+      openingBalance: (vendor && vendor.openingBalance) || "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Please Enter Your Name"),
       phone: Yup.string(),
+      openingBalance: Yup.number("must enter a number"),
     }),
     onSubmit: async (values) => {
       if (isEdit) {
@@ -84,7 +89,7 @@ const Vendors = () => {
             updatedUser
           );
           if (data.success) {
-            toast.success("Successfully created.");
+            toast.success("Successfully updated.");
             validation.resetForm();
             setIsNewModelOpen(false);
             fetchVendors();
@@ -98,6 +103,9 @@ const Vendors = () => {
         const newVendor = {
           name: values["name"],
           phone: values["phone"],
+          openingBalance: values["openingBalance"],
+          userId: user.id,
+          branchId: user.branchId,
         };
 
         try {
@@ -127,6 +135,14 @@ const Vendors = () => {
   const [vendors, setVendors] = useState([]);
   const [deleteModal, setDeleteModal] = useState(false);
 
+  const loggedUser = useContext(LoggedUserContext);
+
+  useEffect(() => {
+    if (loggedUser) {
+      setUser(loggedUser);
+    }
+  }, [loggedUser]);
+
   const fetchVendors = async () => {
     try {
       setLoading(true);
@@ -150,7 +166,7 @@ const Vendors = () => {
   const onDeleteVendor = async () => {
     try {
       const { data } = await axios.delete(
-        "http://localhost:5000/api/vendors/" + vendor._id
+        "http://localhost:5000/api/vendors/" + vendor.id
       );
       if (data.success) {
         toast.success("Succefully Deleted");
@@ -251,15 +267,15 @@ const Vendors = () => {
                       isGlobalFilter={true}
                       isPagination={false}
                       SearchPlaceholder="Search..."
-                      isCustomPageSize={true}
+                      isCustomPageSize={false}
                       isAddButton={true}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setVendor("");
                         setIsNewModelOpen(!isNewModalOpen);
                       }}
-                      buttonClass="btn btn-success btn-rounded waves-effect waves-light addContact-modal mb-2"
-                      buttonName="New Contact"
+                      buttonClass="btn btn-success btn-rounded-md waves-effect waves-light addContact-modal mb-2"
+                      buttonName="New Vendor"
                       tableClass="align-middle table-nowrap table-hover dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
                       theadClass="table-light"
                       paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
@@ -310,28 +326,62 @@ const Vendors = () => {
                         </FormFeedback>
                       ) : null}
                     </div>
-                    <div className="mb-3">
-                      <Label>Phone</Label>
-                      <Input
-                        name="phone"
-                        label="Phone"
-                        type="text"
-                        onChange={validation.handleChange}
-                        onBlur={validation.handleBlur}
-                        value={validation.values.phone || ""}
-                        invalid={
-                          validation.touched.phone && validation.errors.phone
-                            ? true
-                            : false
-                        }
-                      />
-                      {validation.touched.phone && validation.errors.phone ? (
-                        <FormFeedback type="invalid">
-                          {" "}
-                          {validation.errors.email}{" "}
-                        </FormFeedback>
-                      ) : null}
-                    </div>
+                    <Row>
+                      <Col xs={isEdit ? 12 : 6}>
+                        <div className="mb-3">
+                          <Label>Phone</Label>
+                          <Input
+                            name="phone"
+                            label="Phone"
+                            type="text"
+                            onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
+                            value={validation.values.phone || ""}
+                            invalid={
+                              validation.touched.phone &&
+                              validation.errors.phone
+                                ? true
+                                : false
+                            }
+                          />
+                          {validation.touched.phone &&
+                          validation.errors.phone ? (
+                            <FormFeedback type="invalid">
+                              {" "}
+                              {validation.errors.phone}{" "}
+                            </FormFeedback>
+                          ) : null}
+                        </div>
+                      </Col>
+                      {!isEdit && (
+                        <Col xs={isEdit ? 12 : 6}>
+                          <div className="mb-3">
+                            <Label>Opening Balance</Label>
+                            <Input
+                              name="openingBalance"
+                              label="Balance"
+                              type="number"
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              value={validation.values.openingBalance || ""}
+                              invalid={
+                                validation.touched.openingBalance &&
+                                validation.errors.openingBalance
+                                  ? true
+                                  : false
+                              }
+                            />
+                            {validation.touched.openingBalance &&
+                            validation.errors.openingBalance ? (
+                              <FormFeedback type="invalid">
+                                {" "}
+                                {validation.errors.openingBalance}{" "}
+                              </FormFeedback>
+                            ) : null}
+                          </div>
+                        </Col>
+                      )}
+                    </Row>
                   </Col>
                 </Row>
                 <Row>

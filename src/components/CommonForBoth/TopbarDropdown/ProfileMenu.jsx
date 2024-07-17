@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import PropTypes from "prop-types";
 import {
   Dropdown,
@@ -16,13 +16,21 @@ import { Link } from "react-router-dom";
 import withRouter from "../../Common/withRouter";
 
 // users
-import user1 from "../../../assets/images/users/avatar-1.jpg";
+import user1 from "../../../assets/images/users/avatar-2.jpg";
+import { LoggedUserContext } from "../../../App";
 
 const ProfileMenu = (props) => {
   // Declare a new state variable, which we'll call "menu"
   const [menu, setMenu] = useState(false);
 
-  const [username, setusername] = useState("Admin");
+  const [username, setusername] = useState("");
+  const user = useContext(LoggedUserContext);
+
+  useEffect(() => {
+    if (user) {
+      setusername(user.username);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (localStorage.getItem("authUser")) {

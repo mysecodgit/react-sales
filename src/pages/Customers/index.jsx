@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { Link } from "react-router-dom";
 import TableContainer from "../../components/Common/TableContainer";
 import Spinners from "../../components/Common/Spinner";
@@ -28,6 +28,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
+import { LoggedUserContext } from "../../App";
 
 const Customers = () => {
   //meta title
@@ -35,25 +36,43 @@ const Customers = () => {
 
   const [customer, setCustomer] = useState();
   const [isLoading, setLoading] = useState(true);
+  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [branches, setBranches] = useState([]);
+
+  const [user, setUser] = useState();
+
+  const loggedUser = useContext(LoggedUserContext);
+
+  useEffect(() => {
+    if (loggedUser) {
+      setUser(loggedUser);
+    }
+  }, [loggedUser]);
+
   // validation
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
 
     initialValues: {
-      id: (customer && customer._id) || "",
+      id: (customer && customer.id) || "",
       name: (customer && customer.name) || "",
       phone: (customer && customer.phone) || "",
+      openingBalance: (customer && customer.openingBalance) || "",
+      branchId: (customer && customer.branch_id) || "",
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Please Enter Your Name"),
       phone: Yup.string(),
+      openingBalance: Yup.number("must enter a number"),
+      branchId: Yup.string().required("please select branch"),
     }),
     onSubmit: async (values) => {
       if (isEdit) {
         const updatedUser = {
           name: values["name"],
           phone: values["phone"],
+          branchId: values["branchId"],
         };
 
         const customerId = values["id"];
@@ -64,7 +83,7 @@ const Customers = () => {
             updatedUser
           );
           if (data.success) {
-            toast.success("Successfully created.");
+            toast.success("Successfully updated.");
             validation.resetForm();
             setIsNewModelOpen(false);
             fetchCustomers();
@@ -78,6 +97,10 @@ const Customers = () => {
         const newVendor = {
           name: values["name"],
           phone: values["phone"],
+          openingBalance: values["openingBalance"],
+          userId: user.id,
+          // branchId: user.branchId,
+          branchId: values["branchId"],
         };
 
         try {
@@ -120,13 +143,23 @@ const Customers = () => {
     }
   };
 
+  const fetchBranches = async () => {
+    try {
+      const { data } = await axiosInstance.get("branches");
+      setBranches(data.branches);
+    } catch (error) {
+      console.log("Error ", error);
+    }
+  };
+
   useEffect(() => {
     fetchCustomers();
+    fetchBranches();
   }, []);
 
   const onDeleteCustomer = async () => {
     try {
-      const { data } = await axiosInstance.delete("customers/" + customer._id);
+      const { data } = await axiosInstance.delete("customers/" + customer.id);
       if (data.success) {
         toast.success("Succefully Deleted");
         setDeleteModal(false);
@@ -151,6 +184,12 @@ const Customers = () => {
       {
         header: "Phone",
         accessorKey: "phone",
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Branch",
+        accessorKey: "branch_name",
         enableColumnFilter: false,
         enableSorting: true,
       },
@@ -228,15 +267,15 @@ const Customers = () => {
                       isGlobalFilter={true}
                       isPagination={false}
                       SearchPlaceholder="Search..."
-                      isCustomPageSize={true}
+                      isCustomPageSize={false}
                       isAddButton={true}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setCustomer("");
                         setIsNewModelOpen(!isNewModalOpen);
                       }}
-                      buttonClass="btn btn-success btn-rounded waves-effect waves-light addContact-modal mb-2"
-                      buttonName="New Contact"
+                      buttonClass="btn btn-success btn-rounded-md waves-effect waves-light addContact-modal mb-2"
+                      buttonName="New Customer"
                       tableClass="align-middle table-nowrap table-hover dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
                       theadClass="table-light"
                       paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
@@ -287,25 +326,96 @@ const Customers = () => {
                         </FormFeedback>
                       ) : null}
                     </div>
+                    <Row>
+                      <Col xs={isEdit ? 12 : 6}>
+                        <div className="mb-3">
+                          <Label>Phone</Label>
+                          <Input
+                            name="phone"
+                            label="Phone"
+                            type="text"
+                            onChange={validation.handleChange}
+                            onBlur={validation.handleBlur}
+                            value={validation.values.phone || ""}
+                            invalid={
+                              validation.touched.phone &&
+                              validation.errors.phone
+                                ? true
+                                : false
+                            }
+                          />
+                          {validation.touched.phone &&
+                          validation.errors.phone ? (
+                            <FormFeedback type="invalid">
+                              {" "}
+                              {validation.errors.phone}{" "}
+                            </FormFeedback>
+                          ) : null}
+                        </div>
+                      </Col>
+                      {!isEdit && (
+                        <Col xs={isEdit ? 12 : 6}>
+                          <div className="mb-3">
+                            <Label>Opening Balance</Label>
+                            <Input
+                              name="openingBalance"
+                              label="Balance"
+                              type="number"
+                              onChange={validation.handleChange}
+                              onBlur={validation.handleBlur}
+                              value={validation.values.openingBalance || ""}
+                              invalid={
+                                validation.touched.openingBalance &&
+                                validation.errors.openingBalance
+                                  ? true
+                                  : false
+                              }
+                            />
+                            {validation.touched.openingBalance &&
+                            validation.errors.openingBalance ? (
+                              <FormFeedback type="invalid">
+                                {" "}
+                                {validation.errors.openingBalance}{" "}
+                              </FormFeedback>
+                            ) : null}
+                          </div>
+                        </Col>
+                      )}
+                    </Row>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col lg="12">
                     <div className="mb-3">
-                      <Label>Phone</Label>
+                      <Label>Branch</Label>
                       <Input
-                        name="phone"
-                        label="Phone"
-                        type="text"
+                        name="branchId"
+                        label="Branch"
+                        type="select"
                         onChange={validation.handleChange}
                         onBlur={validation.handleBlur}
-                        value={validation.values.phone || ""}
+                        value={validation.values.branchId || ""}
                         invalid={
-                          validation.touched.phone && validation.errors.phone
+                          validation.touched.branchId &&
+                          validation.errors.branchId
                             ? true
                             : false
                         }
-                      />
-                      {validation.touched.phone && validation.errors.phone ? (
+                      >
+                        <option value="">Select type</option>
+                        {branches?.map((brn) => {
+                          return (
+                            <option key={brn.id} value={brn.id}>
+                              {brn.branch_name}
+                            </option>
+                          );
+                        })}
+                      </Input>
+                      {validation.touched.branchId &&
+                      validation.errors.branchId ? (
                         <FormFeedback type="invalid">
                           {" "}
-                          {validation.errors.email}{" "}
+                          {validation.errors.branchId}{" "}
                         </FormFeedback>
                       ) : null}
                     </div>

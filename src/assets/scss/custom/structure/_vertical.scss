@@ -1,6 +1,6 @@
 //
 // _menu.scss
-// 
+//
 
 .metismenu {
   margin: 0;
@@ -18,7 +18,7 @@
     }
 
     &.mm-show {
-      display: block
+      display: block;
     }
   }
 
@@ -27,11 +27,10 @@
     height: 0;
     overflow: hidden;
     transition-timing-function: ease;
-    transition-duration: .35s;
+    transition-duration: 0.35s;
     transition-property: height, visibility;
   }
 }
-
 
 .vertical-menu {
   width: $sidebar-width;
@@ -62,7 +61,9 @@
 
 .main-content {
   margin-left: $sidebar-width;
-  overflow: hidden;
+  // overflow: hidden;
+  overflow: auto;
+  height: 100vh; // added by me
 
   .content {
     padding: 0 15px 10px 15px;
@@ -70,12 +71,11 @@
   }
 }
 
-
 #sidebar-menu {
   padding: 10px 0 30px 0;
 
   .mm-active {
-    >.has-arrow {
+    > .has-arrow {
       &:after {
         transform: rotate(-180deg);
       }
@@ -85,10 +85,10 @@
   .has-arrow {
     &:after {
       content: "\F0140";
-      font-family: 'Material Design Icons';
+      font-family: "Material Design Icons";
       display: block;
       float: right;
-      transition: transform .2s;
+      transition: transform 0.2s;
       font-size: 1rem;
     }
   }
@@ -97,21 +97,21 @@
     li {
       a {
         display: block;
-        padding: .625rem 1.5rem;
+        padding: 0.625rem 1.5rem;
         color: $sidebar-menu-item-color;
         position: relative;
         font-size: 13px;
-        transition: all .4s;
+        transition: all 0.4s;
 
         i {
           display: inline-block;
           min-width: 1.75rem;
-          padding-bottom: .125em;
+          padding-bottom: 0.125em;
           font-size: 1.25rem;
           line-height: 1.40625rem;
           vertical-align: middle;
           color: $sidebar-menu-item-icon-color;
-          transition: all .4s;
+          transition: all 0.4s;
         }
 
         &:hover {
@@ -131,9 +131,8 @@
         padding: 0;
 
         li {
-
           a {
-            padding: .4rem 1.5rem .4rem 3.5rem;
+            padding: 0.4rem 1.5rem 0.4rem 3.5rem;
             font-size: 13px;
             color: $sidebar-menu-sub-item-color;
 
@@ -147,23 +146,20 @@
 
             li {
               a {
-                padding: .4rem 1.5rem .4rem 4.5rem;
+                padding: 0.4rem 1.5rem 0.4rem 4.5rem;
                 font-size: 13px;
-
-
               }
             }
           }
         }
       }
     }
-
   }
 }
 
 .menu-title {
   padding: 12px 20px !important;
-  letter-spacing: .05em;
+  letter-spacing: 0.05em;
   pointer-events: none;
   cursor: default;
   font-size: 11px;
@@ -175,7 +171,7 @@
 .mm-active {
   color: $sidebar-menu-item-active-color !important;
 
-  >a {
+  > a {
     color: $sidebar-menu-item-active-color !important;
 
     i {
@@ -191,7 +187,7 @@
     }
   }
 
-  >i {
+  > i {
     color: $sidebar-menu-item-active-color !important;
   }
 }
@@ -214,7 +210,6 @@
 
 // Enlarge menu
 .vertical-collpsed {
-
   .main-content {
     margin-left: $sidebar-collapsed-width;
   }
@@ -262,7 +257,6 @@
 
     // Sidebar Menu
     #sidebar-menu {
-
       .menu-title,
       .badge,
       .collapse.in {
@@ -279,12 +273,12 @@
         }
       }
 
-      >ul {
-        >li {
+      > ul {
+        > li {
           position: relative;
           white-space: nowrap;
 
-          >a {
+          > a {
             padding: 15px 20px;
             min-height: 55px;
             transition: none;
@@ -307,7 +301,7 @@
           }
 
           &:hover {
-            >a {
+            > a {
               position: relative;
               width: calc(190px + #{$sidebar-collapsed-width});
               color: $primary;
@@ -323,7 +317,7 @@
               }
             }
 
-            >ul {
+            > ul {
               display: block;
               left: $sidebar-collapsed-width;
               position: absolute;
@@ -359,7 +353,7 @@
 
           li {
             &:hover {
-              >ul {
+              > ul {
                 display: block;
                 left: 190px;
                 height: auto !important;
@@ -369,7 +363,7 @@
               }
             }
 
-            >a {
+            > a {
               span.pull-right {
                 position: absolute;
                 right: 20px;
@@ -387,10 +381,8 @@
         }
       }
     }
-
   }
 }
-
 
 body[data-sidebar="dark"] {
   .vertical-menu {
@@ -398,7 +390,6 @@ body[data-sidebar="dark"] {
   }
 
   #sidebar-menu {
-
     ul {
       li {
         a {
@@ -419,7 +410,6 @@ body[data-sidebar="dark"] {
 
         ul.sub-menu {
           li {
-
             a {
               color: $sidebar-dark-menu-sub-item-color;
 
@@ -445,10 +435,10 @@ body[data-sidebar="dark"] {
 
       // Sidebar Menu
       #sidebar-menu {
-        >ul {
-          >li {
+        > ul {
+          > li {
             &:hover {
-              >a {
+              > a {
                 background: lighten($sidebar-dark-bg, 2%);
                 color: $sidebar-dark-menu-item-hover-color;
 
@@ -457,7 +447,7 @@ body[data-sidebar="dark"] {
                 }
               }
 
-              >ul {
+              > ul {
                 a {
                   color: $sidebar-dark-menu-sub-item-color;
 
@@ -472,11 +462,9 @@ body[data-sidebar="dark"] {
           ul {
             background-color: $sidebar-dark-bg;
           }
-
         }
 
         ul {
-
           li {
             &.mm-active .active {
               color: $sidebar-dark-menu-item-active-color !important;
@@ -487,17 +475,14 @@ body[data-sidebar="dark"] {
             }
           }
         }
-
       }
-
-
     }
   }
 
   .mm-active {
     color: $sidebar-dark-menu-item-active-color !important;
 
-    >a {
+    > a {
       color: $sidebar-dark-menu-item-active-color !important;
 
       i {
@@ -505,7 +490,7 @@ body[data-sidebar="dark"] {
       }
     }
 
-    >i {
+    > i {
       color: $sidebar-dark-menu-item-active-color !important;
     }
 
@@ -522,7 +507,6 @@ body[data-sidebar="dark"] {
     color: $sidebar-dark-menu-item-icon-color;
   }
 }
-
 
 body[data-layout="horizontal"] {
   .main-content {
@@ -604,9 +588,9 @@ body[data-sidebar-size="small"] {
       #sidebar-menu {
         text-align: left;
 
-        >ul {
-          >li {
-            >a {
+        > ul {
+          > li {
+            > a {
               i {
                 display: inline-block;
               }
@@ -643,7 +627,7 @@ body[data-sidebar="greatwhale"] {
   .mm-active {
     color: $white !important;
 
-    >a {
+    > a {
       color: $white !important;
 
       i {
@@ -651,7 +635,7 @@ body[data-sidebar="greatwhale"] {
       }
     }
 
-    >i,
+    > i,
     .active {
       color: $white !important;
     }
@@ -704,9 +688,9 @@ body[data-sidebar="greatwhale"] {
   &.vertical-collpsed {
     .vertical-menu {
       #sidebar-menu {
-        >ul {
-          >li {
-            &:hover>a {
+        > ul {
+          > li {
+            &:hover > a {
               background-color: lighten($primary, 2%);
               color: $white;
 
@@ -736,7 +720,7 @@ body[data-sidebar="greatwhale"] {
                 &.mm-active {
                   color: $sidebar-menu-item-active-color !important;
 
-                  >a {
+                  > a {
                     color: $sidebar-menu-item-active-color !important;
 
                     i {
@@ -777,9 +761,9 @@ body[data-sidebar="colored"] {
       }
 
       #sidebar-menu {
-        >ul {
-          >li {
-            &:hover>a {
+        > ul {
+          > li {
+            &:hover > a {
               background-color: lighten($primary, 2%);
             }
           }
@@ -824,9 +808,9 @@ body[data-sidebar="winter"] {
       }
 
       #sidebar-menu {
-        >ul {
-          >li {
-            &:hover>a {
+        > ul {
+          > li {
+            &:hover > a {
               background-image: linear-gradient(to right, #556ee6, #34c38f);
               background-repeat: repeat-x;
             }
@@ -866,9 +850,9 @@ body[data-sidebar="ladylip"] {
       }
 
       #sidebar-menu {
-        >ul {
-          >li {
-            &:hover>a {
+        > ul {
+          > li {
+            &:hover > a {
               background-image: linear-gradient(to right, #556ee6, #f46a6a);
               background-repeat: repeat-x;
             }
@@ -908,9 +892,9 @@ body[data-sidebar="plumplate"] {
       }
 
       #sidebar-menu {
-        >ul {
-          >li {
-            &:hover>a {
+        > ul {
+          > li {
+            &:hover > a {
               background-image: linear-gradient(to right, #556ee6, #f1b44c);
               background-repeat: repeat-x;
             }
@@ -950,9 +934,9 @@ body[data-sidebar="strongbliss"] {
       }
 
       #sidebar-menu {
-        >ul {
-          >li {
-            &:hover>a {
+        > ul {
+          > li {
+            &:hover > a {
               background-image: linear-gradient(to right, #f46a6a, #f1b44c);
               background-repeat: repeat-x;
             }
@@ -986,19 +970,23 @@ body[data-sidebar="greatwhale"] {
   &.vertical-collpsed {
     .vertical-menu {
       .navbar-brand-box {
-        background-image: linear-gradient(to right,
-            darken($primary, 15%),
-            #50a5f1);
+        background-image: linear-gradient(
+          to right,
+          darken($primary, 15%),
+          #50a5f1
+        );
         background-repeat: repeat-x;
       }
 
       #sidebar-menu {
-        >ul {
-          >li {
-            &:hover>a {
-              background-image: linear-gradient(to right,
-                  darken($primary, 15%),
-                  #50a5f1);
+        > ul {
+          > li {
+            &:hover > a {
+              background-image: linear-gradient(
+                to right,
+                darken($primary, 15%),
+                #50a5f1
+              );
               background-repeat: repeat-x;
             }
           }

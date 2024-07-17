@@ -1,0 +1,288 @@
+import React, { useEffect, useState, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import TableContainer from "../../components/Common/TableContainer";
+import Spinners from "../../components/Common/Spinner";
+import {
+  Card,
+  CardBody,
+  Col,
+  Container,
+  Row,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  Label,
+  FormFeedback,
+  Input,
+  Form,
+  Button,
+  Badge,
+} from "reactstrap";
+import * as Yup from "yup";
+import { useFormik } from "formik";
+
+//Import Breadcrumb
+import Breadcrumbs from "/src/components/Common/Breadcrumb";
+import DeleteModal from "/src/components/Common/DeleteModal";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axiosInstance from "../../services/axiosService";
+import moment from "moment/moment";
+
+const PurchaseReturns = () => {
+  //meta title
+  document.title = "Purchase Returns";
+
+  const [purchase, setPurchase] = useState();
+  const [isLoading, setLoading] = useState(false);
+  // validation
+  const validation = useFormik({
+    // enableReinitialize : use this flag when initial values needs to be changed
+    enableReinitialize: true,
+
+    initialValues: {
+      id: (purchase && purchase._id) || "",
+      name: (purchase && purchase.name) || "",
+      //   image: (purchase && purchase.image) || "", will come to it later
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Please Enter Product Name"),
+    }),
+    onSubmit: async (values) => {
+      if (isEdit) {
+        const updatedProduct = {
+          name: values["name"],
+        };
+
+        const purchaseId = values["id"];
+
+        try {
+          const { data } = await axiosInstance.put(
+            `purchases/${purchaseId}`,
+            updatedProduct
+          );
+          if (data.success) {
+            toast.success("Successfully updated.");
+            validation.resetForm();
+            setIsNewModelOpen(false);
+            fetchPurchaseReturns();
+          } else {
+            toast.error("Sorry something went wrong");
+          }
+        } catch (err) {
+          toast.error("Sorry something went wrong");
+        }
+      } else {
+        const newProduct = {
+          name: values["name"],
+        };
+
+        try {
+          const { data } = await axiosInstance.post("purchases", newProduct);
+          if (data.success) {
+            toast.success("Successfully created.");
+            validation.resetForm();
+            setIsNewModelOpen(false);
+            fetchPurchaseReturns();
+          } else {
+            toast.error("Sorry something went wrong");
+          }
+        } catch (err) {
+          toast.error("Sorry something went wrong");
+        }
+
+        // save new user
+      }
+    },
+  });
+
+  const [isNewModalOpen, setIsNewModelOpen] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [purchases, setPurchaseReturns] = useState([
+    { invoice: "P001" },
+    { invoiceNo: "P002" },
+  ]);
+  const [deleteModal, setDeleteModal] = useState(false);
+
+  const fetchPurchaseReturns = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axiosInstance.get("purchases/returns");
+      if (data.success) {
+        setPurchaseReturns(data.returns);
+        setLoading(false);
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log("Error ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPurchaseReturns();
+  }, []);
+
+  let navigate = useNavigate();
+
+  const cancelPurchaseReturn = async (id) => {
+    try {
+      const { data } = await axiosInstance.get(
+        "purchases/" + id + "/cancel_purchase_return"
+      );
+      if (data.success) {
+        toast.success("Succefully Cancelled");
+        setDeleteModal(false);
+        fetchPurchaseReturns();
+      } else {
+        toast.error("Something went wrong");
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const columns = useMemo(
+    () => [
+      {
+        header: "Purchas No",
+        accessorKey: "purchaseNo",
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Date",
+        accessorKey: "return_date",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: (cell) => {
+          const formattedDate = moment(cell.row.original.return_date).format(
+            "D MMM YY"
+          );
+          return <>{formattedDate}</>;
+        },
+      },
+      {
+        header: "Vendor",
+        accessorKey: "name",
+        enableColumnFilter: false,
+        enableSorting: true,
+      },
+      {
+        header: "Total",
+        accessorKey: "total",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: (cell) => {
+          return <>$ {cell.row.original.total}</>;
+        },
+      },
+      {
+        header: "Received",
+        accessorKey: "paid",
+        enableColumnFilter: false,
+        enableSorting: true,
+        cell: (cell) => {
+          if (cell.row.original.paid) return <>$ {cell.row.original.paid}</>;
+          else return <>$ 0</>;
+        },
+      },
+      // {
+      //   header: "Status",
+      //   accessorKey: "status",
+      //   enableColumnFilter: false,
+      //   enableSorting: true,
+      //   cell: (cell) => {
+      //     if (cell.row.original.status == "Prior")
+      //       return (
+      //         <Badge color="danger" className="me-1">
+      //           Cancelled
+      //         </Badge>
+      //       );
+      //     else
+      //       return (
+      //         <Badge color="warning" className="pending">
+      //           Pending
+      //         </Badge>
+      //       );
+      //   },
+      // },
+      {
+        header: "Action",
+        cell: (cellProps) => {
+          if (cellProps.row.original.status == "Prior") return null;
+          return (
+            <div className="d-flex gap-3">
+              <Link
+                to="#"
+                className="text-success"
+                onClick={() => {
+                  setPurchase(cellProps.row.original);
+                  setDeleteModal(true);
+                }}
+              >
+                <Button type="button" color="danger" className="btn-sm px-3">
+                  Cancel
+                </Button>
+              </Link>
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  return (
+    <React.Fragment>
+      <DeleteModal
+        show={deleteModal}
+        warningText={"Are you sure to cancel this purchase return "}
+        onDeleteClick={() => cancelPurchaseReturn(purchase.id)}
+        onCloseClick={() => setDeleteModal(false)}
+      />
+      <div className="page-content">
+        <Container fluid>
+          {/* Render Breadcrumbs */}
+          <Breadcrumbs title="Purchase" breadcrumbItem="Purchase Returns" />
+          {isLoading ? (
+            <Spinners setLoading={setLoading} />
+          ) : (
+            <Row>
+              <Col lg="12">
+                <Card>
+                  <CardBody>
+                    <TableContainer
+                      columns={columns}
+                      data={purchases || []}
+                      isGlobalFilter={true}
+                      isPagination={false}
+                      SearchPlaceholder="Search..."
+                      isCustomPageSize={false}
+                      isAddButton={true}
+                      handleUserClick={() => {
+                        navigate("new");
+                      }}
+                      buttonClass="btn btn-success btn-rounded-md waves-effect waves-light addContact-modal mb-2"
+                      buttonName="New Purchase Return"
+                      tableClass="align-middle table-nowrap table-hover dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                      theadClass="table-light"
+                      paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
+                      pagination="pagination"
+                    />
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
+          )}
+        </Container>
+      </div>
+      <ToastContainer />
+    </React.Fragment>
+  );
+};
+
+export default PurchaseReturns;

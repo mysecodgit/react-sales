@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { createContext, useEffect, useState } from "react";
 
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { useSelector } from "react-redux";
@@ -25,6 +25,9 @@ import "./assets/scss/theme.scss";
 // import { initFirebaseBackend } from "./helpers/firebase_helper"
 
 import fakeBackend from "/src/helpers/AuthType/fakeBackend";
+import axiosInstance from "./services/axiosService";
+import { at } from "lodash";
+import { jwtDecode } from "jwt-decode";
 
 // Activating fake backend
 fakeBackend();
@@ -42,19 +45,16 @@ fakeBackend();
 
 // init firebase backend
 // initFirebaseBackend(firebaseConfig)
+export const LoggedUserContext = createContext();
+export const UrlActionContext = createContext();
 
 const App = (props) => {
   const selectLayoutState = (state) => state.Layout;
-  const LayoutProperties = createSelector(
-    selectLayoutState,
-      (layout) => ({
-        layoutType: layout.layoutType,
-      })
-  );
+  const LayoutProperties = createSelector(selectLayoutState, (layout) => ({
+    layoutType: layout.layoutType,
+  }));
 
-    const {
-      layoutType
-  } = useSelector(LayoutProperties);
+  const { layoutType } = useSelector(LayoutProperties);
 
   function getLayout(layoutType) {
     let layoutCls = VerticalLayout;
@@ -71,31 +71,60 @@ const App = (props) => {
 
   const Layout = getLayout(layoutType);
 
+  const token = localStorage.getItem("accessToken");
+
+  const location = useLocation();
+  const [urlActions, setUrlActions] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const fetchUrlActions = async (token) => {
+    const { data } = await axiosInstance.post("permissions/get_url_actions", {
+      url: location.pathname.substring(1),
+      userId: token.user.id,
+    });
+
+    if (data.success) {
+      setUrlActions(data.actions.map((act) => act.title));
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setCurrentUser(decodedToken.user);
+      fetchUrlActions(decodedToken);
+    }
+  }, [location, token]);
+
   return (
     <React.Fragment>
-      <Routes>
-        {publicRoutes.map((route, idx) => (
-          <Route
-            path={route.path}
-            element={<NonAuthLayout>{route.component}</NonAuthLayout>}
-            key={idx}
-            exact={true}
-          />
-        ))}
+      <LoggedUserContext.Provider value={currentUser}>
+        <UrlActionContext.Provider value={urlActions}>
+          <Routes>
+            {publicRoutes.map((route, idx) => (
+              <Route
+                path={route.path}
+                element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+                key={idx}
+                exact={true}
+              />
+            ))}
 
-        {authProtectedRoutes.map((route, idx) => (
-          <Route
-            path={route.path}
-            element={
-              <Authmiddleware>
-                <Layout>{route.component}</Layout>
-              </Authmiddleware>
-            }
-            key={idx}
-            exact={true}
-          />
-        ))}
-      </Routes>
+            {authProtectedRoutes.map((route, idx) => (
+              <Route
+                path={route.path}
+                element={
+                  <Authmiddleware>
+                    <Layout>{route.component}</Layout>
+                  </Authmiddleware>
+                }
+                key={idx}
+                exact={true}
+              />
+            ))}
+          </Routes>
+        </UrlActionContext.Provider>
+      </LoggedUserContext.Provider>
     </React.Fragment>
   );
 };
