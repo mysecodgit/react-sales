@@ -454,7 +454,7 @@ const SalesReturnPayment = () => {
                   const newPayment = {
                     customerId: selectedCustomer.value,
                     userId: user.id,
-                    branchId: selectedBranch.value,
+                    branchId: user.branchId,
                     return_id: selectedInvoice.value,
                     paidAmount: paidAmount,
                     accountId: setlectedBankAccount.value,
@@ -566,7 +566,7 @@ const SalesReturnPayment = () => {
                     </div>
                   </Col>
                 </Row>
-                <Row>
+                {/* <Row>
                   <Col lg="12">
                     <div className="mb-3">
                       <Label>Branch</Label>
@@ -580,7 +580,7 @@ const SalesReturnPayment = () => {
                       />
                     </div>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row>
                   <Col>
                     <div className="text-end">

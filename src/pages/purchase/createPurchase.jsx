@@ -270,10 +270,10 @@ const CreatePurchase = () => {
                         if (!selectedVendor)
                           return toast.error("Select Vendor");
                         if (!purchaseDate) return toast.error("Select Date");
-                        if (discount > 0 && !selectedIncomeAccount)
-                          return toast.error("Select Discount Account");
-                        if (paid > 0 && !setlectedBankAccount)
-                          return toast.error("Select payment account");
+                        // if (discount > 0 && !selectedIncomeAccount)
+                        //   return toast.error("Select Discount Account");
+                        // if (paid > 0 && !setlectedBankAccount)
+                        //   return toast.error("Select payment account");
 
                         if (totalPrice <= 0)
                           return toast.error(
@@ -286,14 +286,15 @@ const CreatePurchase = () => {
                           branchId: user.branchId,
                           vendorId: selectedVendor.value,
                           purchaseDate,
-                          selectedIncomeAccount:
-                            selectedIncomeAccount?.value || null,
-                          setlectedBankAccount:
-                            setlectedBankAccount?.value || null,
+                          // selectedIncomeAccount:
+                          //   selectedIncomeAccount?.value || null,
+                          // setlectedBankAccount:
+                          //   setlectedBankAccount?.value || null,
                           items: rows,
                           subTotal: totalPrice,
-                          discount: discount || 0,
-                          total: totalPrice - discount,
+                          // discount: discount || 0,
+                          // total: totalPrice - discount,
+                          total: totalPrice,
                           paid,
                         };
 
@@ -390,7 +391,7 @@ const CreatePurchase = () => {
                           </div>
                         </Col>
                       </Row>
-                      <Row>
+                      {/* <Row>
                         <Col lg="3">
                           <div className="mb-3">
                             <Label>Discount Account</Label>
@@ -415,9 +416,9 @@ const CreatePurchase = () => {
                             />
                           </div>
                         </Col>
-                      </Row>
+                      </Row> */}
                       <Row>
-                        <Col lg="9">
+                        <Col lg="10">
                           <h4 className="card-title mb-3">Invoice Details</h4>
                           <div className="">
                             <Table className="table mb-0">
@@ -518,21 +519,26 @@ const CreatePurchase = () => {
                                 })}
                               </tbody>
                             </Table>
+                            <Button
+                              type="submit"
+                              color="success"
+                              disabled={isSaving}
+                              className=" mt-3"
+                            >
+                              Save Invoice
+                            </Button>
                           </div>
                         </Col>
-                        <Col lg="3">
-                          <h4 className="card-title pb-2 mb-2 border-bottom">
-                            Totals
-                          </h4>
+                        <Col lg="2">
                           <Row>
                             <Col lg="6">
-                              <strong>Sub Total</strong>
+                              <h4 className="card-title mb-0 mt-4">Total</h4>
                             </Col>
                             <Col lg="6 text-end">
-                              <p>$ {totalPrice}</p>
+                              <p className="mb-0 mt-4">$ {totalPrice.toFixed(2)}</p>
                             </Col>
                           </Row>
-                          <Row className="align-items-center mb-3">
+                          {/* <Row className="align-items-center mb-3">
                             <Col lg="6">
                               <strong>Discount</strong>
                             </Col>
@@ -571,15 +577,7 @@ const CreatePurchase = () => {
                             <Col lg="6 text-end">
                               <p>$ {totalPrice - discount - paid}</p>
                             </Col>
-                          </Row>
-                          <Button
-                            type="submit"
-                            color="success"
-                            disabled={isSaving}
-                            className="w-100 mt-2"
-                          >
-                            Save Invoice
-                          </Button>
+                          </Row> */}
                         </Col>
                       </Row>
                     </Form>

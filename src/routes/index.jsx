@@ -47,6 +47,8 @@ import GeneralJournal from "../pages/general_journal";
 import CreateGeneralJournal from "../pages/general_journal/newJournal";
 import SalesInvoiceDetails from "../pages/sales/salesInvoice";
 import SalesReturnInvoice from "../pages/sales_returns/returnInvoice";
+import TrialBalance from "../pages/reports/trialBalance";
+import BalanceSheet from "../pages/reports/balanceSheet";
 
 const authProtectedRoutes = [
   { path: "/dashboard", component: <Dashboard /> },
@@ -96,6 +98,9 @@ const authProtectedRoutes = [
   { path: "/checks/new", component: <CreateCheck /> },
   { path: "/checks/:checkId/edit", component: <CreateCheck /> },
   { path: "/falaad", component: <ExcelExport /> },
+
+  { path: "/reports/trial_balance", component: <TrialBalance /> },
+  { path: "/reports/balance_sheet", component: <BalanceSheet /> },
 
   // this route should be at the end of all other routes
   // eslint-disable-next-line react/display-name

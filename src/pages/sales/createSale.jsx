@@ -45,7 +45,9 @@ const CreateSale = () => {
 
   useEffect(() => {
     if (loggedUser) {
+      console.log(loggedUser);
       setUser(loggedUser);
+      fetchProductsByBranchId(loggedUser.branchId);
     }
   }, [loggedUser]);
 
@@ -75,6 +77,7 @@ const CreateSale = () => {
       selectedBranch: null,
       branchId: "",
       productId: "",
+      qtyOnHand: "",
       qty: "",
       price: "",
       total: "",
@@ -90,7 +93,14 @@ const CreateSale = () => {
   const addRow = () => {
     setRows([
       ...rows,
-      { productId: "", branchId: "", qty: "", price: "", total: "" },
+      {
+        productId: "",
+        branchId: "",
+        qtyOnHand: "",
+        qty: "",
+        price: "",
+        total: "",
+      },
     ]);
   };
 
@@ -105,6 +115,7 @@ const CreateSale = () => {
       selectedProduct: product,
       productId: product.value,
       qty: 1,
+      qtyOnHand: product.qtyOnHand,
     };
     setRows(updatedRows);
   };
@@ -127,6 +138,19 @@ const CreateSale = () => {
       total: updatedRows[index].price * newQuantity,
     };
     setRows(updatedRows);
+  };
+
+  const handleQtyBlur = (index, newQuantity) => {
+    const updatedRows = [...rows];
+
+    if (Number(newQuantity) > Number(updatedRows[index].qtyOnHand)) {
+      toast.error("qty waa inuu ka weenyahy qty on hand");
+      updatedRows[index] = {
+        ...updatedRows[index],
+        qty: "",
+      };
+      setRows(updatedRows);
+    }
   };
 
   const handlePriceChange = (index, newPrice) => {
@@ -152,15 +176,19 @@ const CreateSale = () => {
     }
   };
 
-  const fetchProducts = async () => {
+  const fetchProductsByBranchId = async (branchId) => {
     try {
-      const { data } = await axiosInstance.get("products");
+      const { data } = await axiosInstance.post("products/get_by_branch_id", {
+        branchId,
+      });
+
       setProducts(
         data.products.map((product) => {
           return {
             label: product.name,
             value: product.id,
             costPrice: parseFloat(product.avgCost),
+            qtyOnHand: product.qtyOnHand,
           };
         })
       );
@@ -242,9 +270,26 @@ const CreateSale = () => {
     }
   };
 
+  // useEffect(() => {
+  //   setRows([
+  //     {
+  //       selectedProduct: null,
+  //       selectedBranch: null,
+  //       branchId: "",
+  //       productId: "",
+  //       qtyOnHand: "",
+  //       qty: "",
+  //       price: "",
+  //       total: "",
+  //     },
+  //   ])
+  //   if (selectedBranch) {
+  //     fetchProductsByBranchId(selectedBranch.value);
+  //   }
+  // }, [selectedBranch]);
+
   useEffect(() => {
     fetchCustomers();
-    fetchProducts();
     fetchBranches();
     fetchExpenseAccounts();
     fetchBankAccounts();
@@ -272,9 +317,17 @@ const CreateSale = () => {
                         if (!salesNo) return toast.error("Enter purchase No");
                         if (!selectedCustomer)
                           return toast.error("Select Vendor");
-                        if (!selectedBranch)
-                          return toast.error("Select branch");
+                        // if (!selectedBranch)
+                        //   return toast.error("Select branch");
                         if (!salesDate) return toast.error("Select Date");
+
+                        for (let row of rows) {
+                          if (row.qty == "" || row.qty < 1)
+                            return toast.error("qty must be greater than 0");
+                          if (row.price == "" || row.price < 1)
+                            return toast.error("price must be greater than 0");
+                        }
+
                         if (discount > 0 && !selectedExpenseAccount)
                           return toast.error("Select Discount Account");
                         if (paid > 0 && !setlectedBankAccount)
@@ -288,7 +341,8 @@ const CreateSale = () => {
                         const info = {
                           salesNo,
                           userId: user.id,
-                          branchId: selectedBranch.value,
+                          // branchId: selectedBranch.value,
+                          branchId: user.branchId,
                           customerId: selectedCustomer.value,
                           salesDate,
                           selectedExpenseAccount:
@@ -420,7 +474,7 @@ const CreateSale = () => {
                             />
                           </div>
                         </Col>
-                        <Col lg="3">
+                        {/* <Col lg="3">
                           <div className="mb-3">
                             <Label>Branch</Label>
                             <Select
@@ -430,7 +484,7 @@ const CreateSale = () => {
                               className="select2-selection"
                             />
                           </div>
-                        </Col>
+                        </Col> */}
                       </Row>
                       <Row>
                         <Col lg="9">
@@ -441,7 +495,7 @@ const CreateSale = () => {
                                 <tr>
                                   <th style={{ width: "5%" }}>#</th>
                                   <th style={{ width: "20%" }}>Product</th>
-                                  {/* <th style={{ width: "20%" }}>Branch</th> */}
+                                  <th style={{ width: "20%" }}>On Hand</th>
                                   <th style={{ width: "15%" }}>Qty</th>
                                   <th>Price</th>
                                   <th>Total</th>
@@ -468,21 +522,16 @@ const CreateSale = () => {
                                           />
                                         </div>
                                       </td>
-                                      {/* <td>
+                                      <td>
                                         <div className="">
-                                          <Select
-                                            value={row.selectedBranch}
-                                            onChange={(selected) => {
-                                              handleSelectedBranch(
-                                                index,
-                                                selected
-                                              );
-                                            }}
-                                            options={branches}
-                                            className="select2-selection"
+                                          <Input
+                                            type="number"
+                                            disabled
+                                            value={row.qtyOnHand}
+                                            onChange={(e) => {}}
                                           />
                                         </div>
-                                      </td> */}
+                                      </td>
                                       <td>
                                         <Input
                                           type="number"
@@ -492,6 +541,9 @@ const CreateSale = () => {
                                               index,
                                               e.target.value
                                             )
+                                          }
+                                          onBlur={(e) =>
+                                            handleQtyBlur(index, e.target.value)
                                           }
                                         />
                                       </td>

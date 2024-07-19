@@ -450,12 +450,12 @@ const SalesPayment = () => {
                   if (!setlectedBankAccount)
                     return toast.error("Enter account");
 
-                  if (!selectedBranch) return toast.error("Select branch");
+                  // if (!selectedBranch) return toast.error("Select branch");
 
                   const newPayment = {
                     customerId: selectedCustomer.value,
                     userId: user.id,
-                    branchId: selectedBranch.value,
+                    branchId: user.branchId,
                     saleId: selectedInvoice.value,
                     paidAmount: paidAmount,
                     accountId: setlectedBankAccount.value,
@@ -558,14 +558,13 @@ const SalesPayment = () => {
                       <Input
                         name="paid"
                         type="number"
-                        min={0}
                         value={paidAmount}
                         onChange={(e) => setPaidAmount(e.target.value)}
                       />
                     </div>
                   </Col>
                 </Row>
-                <Row>
+                {/* <Row>
                   <Col lg="12">
                     <div className="mb-3">
                       <Label>Branch</Label>
@@ -579,7 +578,7 @@ const SalesPayment = () => {
                       />
                     </div>
                   </Col>
-                </Row>
+                </Row> */}
                 <Row>
                   <Col>
                     <div className="text-end">

@@ -303,8 +303,8 @@ const CreateSaleReturn = () => {
                         if (!selectedInvoice)
                           return toast.error("Select Invoice No");
                         if (!salesDate) return toast.error("Select Date");
-                        if (!selectedBranch)
-                          return toast.error("Select Branch");
+                        // if (!selectedBranch)
+                        //   return toast.error("Select Branch");
 
                         if (paid > 0 && !setlectedBankAccount)
                           return toast.error("Select payment account");
@@ -317,7 +317,7 @@ const CreateSaleReturn = () => {
                         const info = {
                           customerId: selectedCustomer.value,
                           userId: user.id,
-                          branchId: selectedBranch.value,
+                          branchId: user.branchId,
                           salesReturnDate: salesDate,
                           selectedInvoice: selectedInvoice?.value || null,
                           setlectedBankAccount:
@@ -407,8 +407,9 @@ const CreateSaleReturn = () => {
                                 placeholder="dd M,yyyy"
                                 value={salesDate}
                                 onChange={(e) => {
-                                  const utcDate = moment(e[0])
-                                    .format("YYYY-MM-DD ");
+                                  const utcDate = moment(e[0]).format(
+                                    "YYYY-MM-DD "
+                                  );
                                   setSalesDate(utcDate);
                                 }}
                                 options={{
@@ -434,7 +435,7 @@ const CreateSaleReturn = () => {
                             />
                           </div>
                         </Col>
-                        <Col lg="3">
+                        {/* <Col lg="3">
                           <div className="mb-3">
                             <Label>Branch</Label>
                             <Select
@@ -444,7 +445,7 @@ const CreateSaleReturn = () => {
                               className="select2-selection"
                             />
                           </div>
-                        </Col>
+                        </Col> */}
                       </Row>
                       <Row>
                         <Col lg="9">

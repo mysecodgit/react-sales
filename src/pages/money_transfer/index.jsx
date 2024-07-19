@@ -18,7 +18,6 @@ import {
   InputGroup,
 } from "reactstrap";
 
-
 //Import Breadcrumb
 import Breadcrumbs from "/src/components/Common/Breadcrumb";
 import DeleteModal from "/src/components/Common/DeleteModal";
@@ -30,11 +29,31 @@ import moment from "moment/moment";
 import Select from "react-select";
 import Flatpickr from "react-flatpickr";
 import { LoggedUserContext } from "../../App";
+import { UrlActionContext } from "../../App";
 
 const MoneyTransfer = () => {
   //meta title
   document.title = "Transfer money";
 
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
+
+  console.log("it includes ", urlActions.includes("edit"));
   const [user, setUser] = useState();
 
   const loggedUser = useContext(LoggedUserContext);
@@ -190,55 +209,59 @@ const MoneyTransfer = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setIsEdit(true);
-                  setTransferId(cellProps.row.original.id);
+              {urlActions.includes("edit") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setIsEdit(true);
+                    setTransferId(cellProps.row.original.id);
 
-                  setAmount(cellProps.row.original.amount);
+                    setAmount(cellProps.row.original.amount);
 
-                  setSelectedFromAccount({
-                    label: cellProps.row.original.fromAccount,
-                    value: cellProps.row.original.fromAccountId,
-                  });
+                    setSelectedFromAccount({
+                      label: cellProps.row.original.fromAccount,
+                      value: cellProps.row.original.fromAccountId,
+                    });
 
-                  setSelectedToAccount({
-                    label: cellProps.row.original.toAccount,
-                    value: cellProps.row.original.toAccountId,
-                  });
+                    setSelectedToAccount({
+                      label: cellProps.row.original.toAccount,
+                      value: cellProps.row.original.toAccountId,
+                    });
 
-                  setSelectedBranch({
-                    label: cellProps.row.original.branchName,
-                    value: cellProps.row.original.branchId,
-                  });
+                    setSelectedBranch({
+                      label: cellProps.row.original.branchName,
+                      value: cellProps.row.original.branchId,
+                    });
 
-                  setIsNewModelOpen(true);
-                }}
-              >
-                <Button type="button" color="success" className="btn-sm">
-                  Edit
-                </Button>
-              </Link>
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setTransferId(cellProps.row.original.id);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm">
-                  Delete
-                </Button>
-              </Link>
+                    setIsNewModelOpen(true);
+                  }}
+                >
+                  <Button type="button" color="success" className="btn-sm">
+                    Edit
+                  </Button>
+                </Link>
+              )}
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setTransferId(cellProps.row.original.id);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm">
+                    Delete
+                  </Button>
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   const selectStyles = {
@@ -281,14 +304,14 @@ const MoneyTransfer = () => {
                       isGlobalFilter={true}
                       isPagination={false}
                       SearchPlaceholder="Search..."
-                      isCustomPageSize={true}
-                      isAddButton={true}
+                      isCustomPageSize={false}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         setIsEdit(false);
                         resetForm();
                         setIsNewModelOpen(true);
                       }}
-                      buttonClass="btn btn-success btn-rounded waves-effect waves-light addContact-modal mb-2"
+                      buttonClass="btn btn-success btn-rounded-md waves-effect waves-light addContact-modal mb-2"
                       buttonName="New Transfer"
                       tableClass="align-middle table-nowrap table-hover dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
                       theadClass="table-light"

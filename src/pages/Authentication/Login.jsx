@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link, useNavigate } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
@@ -36,9 +36,18 @@ import { toast, ToastContainer } from "react-toastify";
 
 const Login = (props) => {
   //meta title
-  document.title = "Login | Skote - Vite React Admin & Dashboard Template";
+  document.title = "Login | Dhameys";
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [loginError, setLoginError] = useState(null);
+
+  // useEffect(() => {
+  //   console.log("hide it");
+  //   setTimeout(() => {
+  //     setLoginError(null);
+  //   }, 4000);
+  // }, [loginError]);
+
   const validation = useFormik({
     // enableReinitialize : use this flag when initial values needs to be changed
     enableReinitialize: true,
@@ -66,10 +75,14 @@ const Login = (props) => {
           //   "current_user_menue",
           //   JSON.stringify(data.menues)
           // );
-         
+
           navigate("/", { replace: true });
         } else {
           toast.error(data.message);
+          setLoginError({
+            counts: data?.counts,
+            message: data.message,
+          });
         }
       } catch (err) {
         console.log(err);
@@ -215,6 +228,19 @@ const Login = (props) => {
                           Log In
                         </button>
                       </div>
+                      {loginError && (
+                        <div
+                          className={`alert alert-${
+                            loginError?.counts ? "warning" : "danger"
+                          } mt-3`}
+                        >
+                          {loginError?.counts
+                            ? `you have ${
+                                3 - (parseInt(loginError.counts) + 1)
+                              } tries`
+                            : loginError.message}
+                        </div>
+                      )}
                     </Form>
                   </div>
                 </CardBody>

@@ -10,11 +10,11 @@ import { useNavigate } from "react-router-dom";
 const Logout = () => {
   const history = useNavigate();
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-   localStorage.removeItem("current_user")
-   navigate("/login")
+    localStorage.removeItem("accessToken");
+    navigate("/login");
   }, []);
   // useEffect(() => {
   //   dispatch(logoutUser(history));

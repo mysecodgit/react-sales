@@ -35,11 +35,19 @@ axiosInstance.interceptors.response.use(
 
       const decoded = jwtDecode(localStorage.getItem("accessToken"));
 
+      console.log("reached decoded", decoded);
       try {
         // Fetch a new access token from the server
-        const { data } = await axios.post("/refresh-accessToken", {
-          userId: decoded.user.id,
-        });
+        const { data } = await axios.post(
+          `${
+            import.meta.env.VITE_APP_DEV_BACKEND_URL
+          }users/refresh-accessToken`,
+          {
+            userId: decoded.user.id,
+          }
+        );
+
+        console.log("reached data ", data);
 
         // Update the access token in storage
         localStorage.setItem("accessToken", data.accessToken);
@@ -47,6 +55,8 @@ axiosInstance.interceptors.response.use(
         // Retry the original request with the new access token
         return axiosInstance(originalRequest);
       } catch (refreshError) {
+        console.log("reached Error", refreshError);
+
         // If the refresh token is also invalid, the user needs to re-authenticate
         localStorage.removeItem("accessToken");
         window.location.href = "/login";

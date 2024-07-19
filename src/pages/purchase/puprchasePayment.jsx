@@ -56,6 +56,7 @@ const PurchasePayment = () => {
   const [isLoading, setLoading] = useState(false);
   const [remainingBalance, setRemainingBalance] = useState(null);
   const [paidAmount, setPaidAmount] = useState(null);
+  const [discountAmount, setDiscountAmount] = useState(null);
 
   // validation
   const validation = useFormik({
@@ -131,6 +132,9 @@ const PurchasePayment = () => {
   const [bankAccounts, setBankAccounts] = useState();
   const [setlectedBankAccount, setSelectedBankAccount] = useState(null);
 
+  const [incomeAccounts, setIncomeAccounts] = useState();
+  const [setlectedIncomeAccount, setSelectedIncomeAccount] = useState(null);
+
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [branches, setBranches] = useState([]);
 
@@ -193,6 +197,19 @@ const PurchasePayment = () => {
     }
   };
 
+  const fetchIncomeAccounts = async () => {
+    try {
+      const { data } = await axiosInstance.get("accounts/get_income_accounts");
+      setIncomeAccounts(
+        data.incomeAccounts.map((account) => {
+          return { label: account.accountName, value: account.id };
+        })
+      );
+    } catch (error) {
+      console.log("Error ", error);
+    }
+  };
+
   const fetchRemainingBalance = async (purchaseId) => {
     try {
       const { data } = await axiosInstance.get(
@@ -234,7 +251,8 @@ const PurchasePayment = () => {
     fetchPurchasePayments();
     fetchVendors();
     fetchBankAccounts();
-    fetchBranches();
+    // fetchBranches();
+    fetchIncomeAccounts();
   }, []);
 
   let navigate = useNavigate();
@@ -375,6 +393,8 @@ const PurchasePayment = () => {
     setSelectedBankAccount(null);
     setPaidAmount("");
     setSelectedBranch(null);
+    setDiscountAmount("");
+    setSelectedIncomeAccount(null);
   };
 
   return (
@@ -453,6 +473,9 @@ const PurchasePayment = () => {
                   //     );
                   if (!setlectedBankAccount)
                     return toast.error("Select account");
+
+                  if (discountAmount && !setlectedIncomeAccount)
+                    return toast.error("Select Discount Account");
                   // if (!selectedBranch) return toast.error("Select branch");
 
                   const newPayment = {
@@ -464,6 +487,8 @@ const PurchasePayment = () => {
                     purchaseId: selectedInvoice.value,
                     paidAmount: paidAmount,
                     accountId: setlectedBankAccount.value,
+                    discount: discountAmount,
+                    discountAccountId: setlectedIncomeAccount?.value,
                   };
 
                   if (isEdit) {
@@ -566,6 +591,32 @@ const PurchasePayment = () => {
                         min={0}
                         value={paidAmount}
                         onChange={(e) => setPaidAmount(e.target.value)}
+                      />
+                    </div>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col lg="6">
+                    <div className="mb-3">
+                      <Label>Discount Amount</Label>
+                      <Input
+                        name="discount"
+                        type="number"
+                        value={discountAmount}
+                        onChange={(e) => setDiscountAmount(e.target.value)}
+                      />
+                    </div>
+                  </Col>
+                  <Col lg="6">
+                    <div className="mb-3">
+                      <Label>Dicount Account</Label>
+                      <Select
+                        name=""
+                        value={setlectedIncomeAccount}
+                        onChange={setSelectedIncomeAccount}
+                        options={incomeAccounts}
+                        styles={selectStyles}
+                        className="select2-selection"
                       />
                     </div>
                   </Col>

@@ -288,7 +288,24 @@ const SidebarContent = (props) => {
                 </li>
               </ul>
             </li>
-
+            <li>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bx-home-circle"></i>
+                <span>{props.t("Reports")}</span>
+              </Link>
+              <ul className="sub-menu" aria-expanded="false">
+                <li>
+                  <Link to="/reports/trial_balance">
+                    {props.t("Trial Balance")}
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/reports/balance_sheet">
+                    {props.t("Balance Sheet")}
+                  </Link>
+                </li>
+              </ul>
+            </li>
             <li>
               <Link to="/#" className="has-arrow">
                 <i className="bx bx-home-circle"></i>

@@ -74,7 +74,7 @@ const App = (props) => {
   const token = localStorage.getItem("accessToken");
 
   const location = useLocation();
-  const [urlActions, setUrlActions] = useState(null);
+  const [urlActions, setUrlActions] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
   const fetchUrlActions = async (token) => {

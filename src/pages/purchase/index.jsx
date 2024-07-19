@@ -209,24 +209,6 @@ const Purchases = () => {
         },
       },
       {
-        header: "Discount",
-        accessorKey: "discount",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cell) => {
-          return <>$ {cell.row.original.discount}</>;
-        },
-      },
-      {
-        header: "Total",
-        accessorKey: "total",
-        enableColumnFilter: false,
-        enableSorting: true,
-        cell: (cell) => {
-          return <>$ {cell.row.original.total}</>;
-        },
-      },
-      {
         header: "Paid",
         accessorKey: "paid",
         enableColumnFilter: false,
