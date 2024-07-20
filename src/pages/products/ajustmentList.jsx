@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import TableContainer from "../../components/Common/TableContainer";
 import Spinners from "../../components/Common/Spinner";
@@ -30,10 +30,29 @@ import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
 import Select from "react-select";
 import Flatpickr from "react-flatpickr";
+import { UrlActionContext } from "../../App";
 
 const Adjustment = () => {
   //meta title
-  document.title = "Transfer money";
+  document.title = "Adjustment";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [isLoading, setLoading] = useState(false);
 
@@ -419,13 +438,15 @@ const Adjustment = () => {
                           className="select2-selection"
                         />
                       </div>
-                      <Button
-                        color="success"
-                        size="md"
-                        onClick={() => navigate("make-adjustment")}
-                      >
-                        New Adjustment
-                      </Button>
+                      {urlActions.includes("create") && (
+                        <Button
+                          color="success"
+                          size="md"
+                          onClick={() => navigate("make-adjustment")}
+                        >
+                          New Adjustment
+                        </Button>
+                      )}
                     </div>
                   </CardBody>
                 </Card>

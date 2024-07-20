@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { Link } from "react-router-dom";
 import TableContainer from "../../components/Common/TableContainer";
 import Spinners from "../../components/Common/Spinner";
@@ -29,10 +29,29 @@ import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
 import { type } from "@testing-library/user-event/dist/cjs/utility/type.js";
+import { UrlActionContext } from "../../App";
 
 const WareHouses = () => {
   //meta title
-  document.title = "WareHouses";
+  document.title = "Branches";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [warehouse, setWareHouse] = useState();
   const [isLoading, setLoading] = useState(true);
@@ -175,40 +194,43 @@ const WareHouses = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setIsEdit(true);
-                  const userData = cellProps.row.original;
-                  setWareHouse(userData);
-                  setIsNewModelOpen(true);
-                }}
-              >
-                <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-              </Link>
-              {cellProps.row.original.type != "hq" && (
+              {urlActions.includes("edit") && (
                 <Link
                   to="#"
-                  className="text-danger"
+                  className="text-success"
                   onClick={() => {
+                    setIsEdit(true);
                     const userData = cellProps.row.original;
                     setWareHouse(userData);
-                    setDeleteModal(true);
+                    setIsNewModelOpen(true);
                   }}
                 >
-                  <i
-                    className="mdi mdi-delete font-size-18"
-                    id="deletetooltip"
-                  />
+                  <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
                 </Link>
               )}
+              {cellProps.row.original.type != "hq" &&
+                urlActions.includes("delete") && (
+                  <Link
+                    to="#"
+                    className="text-danger"
+                    onClick={() => {
+                      const userData = cellProps.row.original;
+                      setWareHouse(userData);
+                      setDeleteModal(true);
+                    }}
+                  >
+                    <i
+                      className="mdi mdi-delete font-size-18"
+                      id="deletetooltip"
+                    />
+                  </Link>
+                )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   return (
@@ -238,7 +260,7 @@ const WareHouses = () => {
                       isPagination={false}
                       SearchPlaceholder="Search..."
                       isCustomPageSize={false}
-                      isAddButton={true}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setWareHouse("");

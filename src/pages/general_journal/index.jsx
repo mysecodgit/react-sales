@@ -30,11 +30,28 @@ import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
 import Select from "react-select";
 import Flatpickr from "react-flatpickr";
-import { LoggedUserContext } from "../../App";
+import { LoggedUserContext, UrlActionContext } from "../../App";
 
 const GeneralJournal = () => {
   //meta title
-  document.title = "Transfer money";
+  document.title = "General Journal";
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [user, setUser] = useState();
 
@@ -341,32 +358,36 @@ const GeneralJournal = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to={"edit/" + cellProps.row.original.id}
-                className="text-success"
-              >
-                <Button type="button" color="success" className="btn-sm">
-                  Edit
-                </Button>
-              </Link>
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setJournalId(cellProps.row.original.id);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm">
-                  Delete
-                </Button>
-              </Link>
+              {urlActions.includes("edit") && (
+                <Link
+                  to={"edit/" + cellProps.row.original.id}
+                  className="text-success"
+                >
+                  <Button type="button" color="success" className="btn-sm">
+                    Edit
+                  </Button>
+                </Link>
+              )}
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setJournalId(cellProps.row.original.id);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm">
+                    Delete
+                  </Button>
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   const selectStyles = {
@@ -396,13 +417,15 @@ const GeneralJournal = () => {
                 <Card className="mb-3">
                   <CardBody className="py-3">
                     <div className="d-flex align-items-center justify-content-between">
-                      <Button
-                        color="success ms-auto"
-                        size="md"
-                        onClick={() => navigate("new")}
-                      >
-                        New General Journal
-                      </Button>
+                      {urlActions.includes("create") && (
+                        <Button
+                          color="success ms-auto"
+                          size="md"
+                          onClick={() => navigate("new")}
+                        >
+                          New General Journal
+                        </Button>
+                      )}
                     </div>
                   </CardBody>
                 </Card>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import TableContainer from "../../components/Common/TableContainer";
 import Spinners from "../../components/Common/Spinner";
@@ -29,10 +29,28 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
+import { UrlActionContext } from "../../App";
 
 const Expenses = () => {
   //meta title
-  document.title = "Expense Returns";
+  document.title = "Expenses";
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [check, setCheck] = useState();
   const [isLoading, setLoading] = useState(false);
@@ -130,33 +148,37 @@ const Expenses = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to={`${cellProps.row.original.id}/edit`}
-                className="text-success"
-              >
-                <Button type="button" color="success" className="btn-sm px-3">
-                  Edit
-                </Button>
-              </Link>
+              {urlActions.includes("edit") && (
+                <Link
+                  to={`${cellProps.row.original.id}/edit`}
+                  className="text-success"
+                >
+                  <Button type="button" color="success" className="btn-sm px-3">
+                    Edit
+                  </Button>
+                </Link>
+              )}
 
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setCheck(cellProps.row.original);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm px-3">
-                  Cancel
-                </Button>
-              </Link>
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setCheck(cellProps.row.original);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm px-3">
+                    Delete
+                  </Button>
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   return (
@@ -184,8 +206,8 @@ const Expenses = () => {
                       isGlobalFilter={true}
                       isPagination={false}
                       SearchPlaceholder="Search..."
-                      isCustomPageSize={true}
-                      isAddButton={true}
+                      isCustomPageSize={false}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         navigate("new");
                       }}

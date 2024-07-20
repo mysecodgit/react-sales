@@ -53,7 +53,6 @@ const MoneyTransfer = () => {
     }
   }
 
-  console.log("it includes ", urlActions.includes("edit"));
   const [user, setUser] = useState();
 
   const loggedUser = useContext(LoggedUserContext);

@@ -34,6 +34,25 @@ import { LoggedUserContext } from "../../App";
 const Purchases = () => {
   //meta title
   document.title = "Purchases";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
+
   let navigate = useNavigate();
 
   const [user, setUser] = useState();
@@ -45,8 +64,6 @@ const Purchases = () => {
       setUser(loggedUser);
     }
   }, [loggedUser]);
-
-  const urlActions = useContext(UrlActionContext);
 
   const [purchase, setPurchase] = useState();
   const [isLoading, setLoading] = useState(false);
@@ -113,9 +130,7 @@ const Purchases = () => {
 
   const [isNewModalOpen, setIsNewModelOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [purchases, setPurchases] = useState([
-    
-  ]);
+  const [purchases, setPurchases] = useState([]);
   const [deleteModal, setDeleteModal] = useState(false);
 
   const fetchPurchases = async () => {
@@ -218,68 +233,32 @@ const Purchases = () => {
           else return <>$ 0</>;
         },
       },
-      // {
-      //   header: "Status",
-      //   accessorKey: "status",
-      //   enableColumnFilter: false,
-      //   enableSorting: true,
-      //   cell: (cell) => {
-      //     if (cell.row.original.status == "Prior")
-      //       return (
-      //         <Badge color="danger" className="me-1">
-      //           Cancelled
-      //         </Badge>
-      //       );
-      //     else
-      //       return (
-      //         <Badge color="warning" className="pending">
-      //           Pending
-      //         </Badge>
-      //       );
-      //   },
-      // },
       {
         header: "Action",
         cell: (cellProps) => {
-          // if (cellProps.row.original.status == "Prior") return null;
-          if (urlActions && !urlActions.includes("cancel")) return null;
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setPurchase(cellProps.row.original);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm px-3">
-                  Cancel
-                </Button>
-              </Link>
+              {urlActions.includes("cancel") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setPurchase(cellProps.row.original);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm px-3">
+                    Cancel
+                  </Button>
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
-
-  if (urlActions) {
-    if (!urlActions.includes("view")) {
-      return (
-        <>
-          <div className="page-content">
-            <Container fluid>
-              <div className="alert alert-danger">
-                Not authorized to view this page
-              </div>
-            </Container>
-          </div>
-        </>
-      );
-    }
-  }
 
   return (
     <React.Fragment>

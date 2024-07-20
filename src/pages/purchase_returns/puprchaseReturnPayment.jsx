@@ -30,11 +30,29 @@ import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
 import Select from "react-select";
-import { LoggedUserContext } from "../../App";
+import { LoggedUserContext, UrlActionContext } from "../../App";
 
 const PurchaseReturnPayment = () => {
   //meta title
   document.title = "Purchase Return Payment";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [user, setUser] = useState();
 
@@ -288,54 +306,58 @@ const PurchaseReturnPayment = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setIsEdit(true);
-                  setPurchaseId(cellProps.row.original.id);
-                  setSelectedVendor({
-                    label: cellProps.row.original.vendorName,
-                    value: cellProps.row.original.vendorId,
-                  });
+              {urlActions.includes("edit") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setIsEdit(true);
+                    setPurchaseId(cellProps.row.original.id);
+                    setSelectedVendor({
+                      label: cellProps.row.original.vendorName,
+                      value: cellProps.row.original.vendorId,
+                    });
 
-                  fetchRemainingBalance(cellProps.row.original.purchaseId);
+                    fetchRemainingBalance(cellProps.row.original.purchaseId);
 
-                  setSelectedInvoice({
-                    label: "PRT" + cellProps.row.original.purchaseId,
-                    value: cellProps.row.original.purchaseId, // it should be return id but i will change it later
-                  });
+                    setSelectedInvoice({
+                      label: "PRT" + cellProps.row.original.purchaseId,
+                      value: cellProps.row.original.purchaseId, // it should be return id but i will change it later
+                    });
 
-                  setPaidAmount(cellProps.row.original.amount);
-                  setSelectedBankAccount({
-                    label: cellProps.row.original.accountName,
-                    value: cellProps.row.original.accountId,
-                  });
-                  setIsNewModelOpen(true);
-                }}
-              >
-                <Button type="button" color="success" className="btn-sm">
-                  Edit
-                </Button>
-              </Link>
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setPurchaseId(cellProps.row.original.id);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm">
-                  Delete
-                </Button>
-              </Link>
+                    setPaidAmount(cellProps.row.original.amount);
+                    setSelectedBankAccount({
+                      label: cellProps.row.original.accountName,
+                      value: cellProps.row.original.accountId,
+                    });
+                    setIsNewModelOpen(true);
+                  }}
+                >
+                  <Button type="button" color="success" className="btn-sm">
+                    Edit
+                  </Button>
+                </Link>
+              )}
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setPurchaseId(cellProps.row.original.id);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm">
+                    Delete
+                  </Button>
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   const selectStyles = {
@@ -356,7 +378,10 @@ const PurchaseReturnPayment = () => {
       <div className="page-content">
         <Container fluid>
           {/* Render Breadcrumbs */}
-          <Breadcrumbs title="People" breadcrumbItem="PurchaseReturnPayment" />
+          <Breadcrumbs
+            title="Purchase"
+            breadcrumbItem="Purchase Return Payment"
+          />
           {isLoading ? (
             <Spinners setLoading={setLoading} />
           ) : (
@@ -370,14 +395,14 @@ const PurchaseReturnPayment = () => {
                       isGlobalFilter={true}
                       isPagination={false}
                       SearchPlaceholder="Search..."
-                      isCustomPageSize={true}
-                      isAddButton={true}
+                      isCustomPageSize={false}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setIsNewModelOpen(true);
                       }}
                       buttonClass="btn btn-success btn-rounded waves-effect waves-light addContact-modal mb-2"
-                      buttonName="New Contact"
+                      buttonName="New payment"
                       tableClass="align-middle table-nowrap table-hover dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
                       theadClass="table-light"
                       paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"

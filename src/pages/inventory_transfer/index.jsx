@@ -30,11 +30,29 @@ import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
 import Select from "react-select";
 import Flatpickr from "react-flatpickr";
-import { LoggedUserContext } from "../../App";
+import { LoggedUserContext, UrlActionContext } from "../../App";
 
 const InventoryTransfer = () => {
   //meta title
-  document.title = "Transfer money";
+  document.title = "Transfer Inventory";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [user, setUser] = useState();
 
@@ -340,39 +358,43 @@ const InventoryTransfer = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setIsEdit(true);
-                  setTransferId(cellProps.row.original.id);
-                  fetchInventoryTransfersById(cellProps.row.original.id);
-                  setTransferDate(cellProps.row.original.date);
-                  setIsNewModelOpen(true);
-                }}
-              >
-                <Button type="button" color="success" className="btn-sm">
-                  Edit
-                </Button>
-              </Link>
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setTransferId(cellProps.row.original.id);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm">
-                  Delete
-                </Button>
-              </Link>
+              {urlActions.includes("edit") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setIsEdit(true);
+                    setTransferId(cellProps.row.original.id);
+                    fetchInventoryTransfersById(cellProps.row.original.id);
+                    setTransferDate(cellProps.row.original.date);
+                    setIsNewModelOpen(true);
+                  }}
+                >
+                  <Button type="button" color="success" className="btn-sm">
+                    Edit
+                  </Button>
+                </Link>
+              )}
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setTransferId(cellProps.row.original.id);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm">
+                    Delete
+                  </Button>
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   const selectStyles = {
@@ -420,8 +442,8 @@ const InventoryTransfer = () => {
                       isGlobalFilter={true}
                       isPagination={false}
                       SearchPlaceholder="Search..."
-                      isCustomPageSize={true}
-                      isAddButton={true}
+                      isCustomPageSize={false}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setIsNewModelOpen(true);

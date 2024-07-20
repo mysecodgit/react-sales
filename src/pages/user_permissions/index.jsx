@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 import TableContainer from "../../components/Common/TableContainer";
@@ -42,10 +42,29 @@ import moment from "moment/moment";
 import axiosInstance from "../../services/axiosService";
 import Select from "react-select";
 import { actions } from "react-table";
+import { UrlActionContext } from "../../App";
 
 const UserPermissions = () => {
   //meta title
   document.title = "User Permissions";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [users, setUsers] = useState();
   const [selectedUser, setSelectedUser] = useState(null);

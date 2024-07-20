@@ -31,11 +31,30 @@ import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
 import Select from "react-select";
 import "./reactSelectFix.css";
-import { LoggedUserContext } from "../../App";
+import { LoggedUserContext, UrlActionContext } from "../../App";
 
 const PurchasePayment = () => {
   //meta title
   document.title = "Purchase Payment";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
+  
   const [user, setUser] = useState();
 
   const loggedUser = useContext(LoggedUserContext);
@@ -325,59 +344,63 @@ const PurchasePayment = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setIsEdit(true);
-                  setPurchaseId(cellProps.row.original.id);
-                  setSelectedVendor({
-                    label: cellProps.row.original.vendorName,
-                    value: cellProps.row.original.vendorId,
-                  });
+              {urlActions.includes("edit") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setIsEdit(true);
+                    setPurchaseId(cellProps.row.original.id);
+                    setSelectedVendor({
+                      label: cellProps.row.original.vendorName,
+                      value: cellProps.row.original.vendorId,
+                    });
 
-                  setSelectedBranch({
-                    label: cellProps.row.original.branchName,
-                    value: cellProps.row.original.branchId,
-                  });
+                    setSelectedBranch({
+                      label: cellProps.row.original.branchName,
+                      value: cellProps.row.original.branchId,
+                    });
 
-                  fetchRemainingBalance(cellProps.row.original.purchaseId);
+                    fetchRemainingBalance(cellProps.row.original.purchaseId);
 
-                  setSelectedInvoice({
-                    label: cellProps.row.original.purchaseNo,
-                    value: cellProps.row.original.purchaseId,
-                  });
+                    setSelectedInvoice({
+                      label: cellProps.row.original.purchaseNo,
+                      value: cellProps.row.original.purchaseId,
+                    });
 
-                  setPaidAmount(cellProps.row.original.amount);
-                  setSelectedBankAccount({
-                    label: cellProps.row.original.accountName,
-                    value: cellProps.row.original.accountId,
-                  });
-                  setIsNewModelOpen(true);
-                }}
-              >
-                <Button type="button" color="success" className="btn-sm">
-                  Edit
-                </Button>
-              </Link>
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setPurchaseId(cellProps.row.original.id);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm">
-                  Delete
-                </Button>
-              </Link>
+                    setPaidAmount(cellProps.row.original.amount);
+                    setSelectedBankAccount({
+                      label: cellProps.row.original.accountName,
+                      value: cellProps.row.original.accountId,
+                    });
+                    setIsNewModelOpen(true);
+                  }}
+                >
+                  <Button type="button" color="success" className="btn-sm">
+                    Edit
+                  </Button>
+                </Link>
+              )}
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setPurchaseId(cellProps.row.original.id);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm">
+                    Delete
+                  </Button>
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   const selectStyles = {
@@ -423,7 +446,7 @@ const PurchasePayment = () => {
                       isPagination={false}
                       SearchPlaceholder="Search..."
                       isCustomPageSize={false}
-                      isAddButton={true}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setIsNewModelOpen(true);

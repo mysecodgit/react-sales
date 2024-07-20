@@ -47,11 +47,29 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import moment from "moment/moment";
-import { LoggedUserContext } from "../../App";
+import { LoggedUserContext, UrlActionContext } from "../../App";
 
 const Vendors = () => {
   //meta title
   document.title = "Vendors";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const dispatch = useDispatch();
   const [vendor, setVendor] = useState();
@@ -212,35 +230,42 @@ const Vendors = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setIsEdit(true);
-                  const userData = cellProps.row.original;
-                  setVendor(userData);
-                  setIsNewModelOpen(true);
-                }}
-              >
-                <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-              </Link>
-              <Link
-                to="#"
-                className="text-danger"
-                onClick={() => {
-                  const userData = cellProps.row.original;
-                  setVendor(userData);
-                  setDeleteModal(true);
-                }}
-              >
-                <i className="mdi mdi-delete font-size-18" id="deletetooltip" />
-              </Link>
+              {urlActions.includes("edit") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setIsEdit(true);
+                    const userData = cellProps.row.original;
+                    setVendor(userData);
+                    setIsNewModelOpen(true);
+                  }}
+                >
+                  <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
+                </Link>
+              )}
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-danger"
+                  onClick={() => {
+                    const userData = cellProps.row.original;
+                    setVendor(userData);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <i
+                    className="mdi mdi-delete font-size-18"
+                    id="deletetooltip"
+                  />
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   return (
@@ -268,7 +293,7 @@ const Vendors = () => {
                       isPagination={false}
                       SearchPlaceholder="Search..."
                       isCustomPageSize={false}
-                      isAddButton={true}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setVendor("");

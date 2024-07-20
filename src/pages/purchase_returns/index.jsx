@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import TableContainer from "../../components/Common/TableContainer";
 import Spinners from "../../components/Common/Spinner";
@@ -29,10 +29,29 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
+import { UrlActionContext } from "../../App";
 
 const PurchaseReturns = () => {
   //meta title
   document.title = "Purchase Returns";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [purchase, setPurchase] = useState();
   const [isLoading, setLoading] = useState(false);
@@ -216,24 +235,26 @@ const PurchaseReturns = () => {
           if (cellProps.row.original.status == "Prior") return null;
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setPurchase(cellProps.row.original);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm px-3">
-                  Cancel
-                </Button>
-              </Link>
+              {urlActions.includes("cancel") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setPurchase(cellProps.row.original);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm px-3">
+                    Cancel
+                  </Button>
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   return (
@@ -262,7 +283,7 @@ const PurchaseReturns = () => {
                       isPagination={false}
                       SearchPlaceholder="Search..."
                       isCustomPageSize={false}
-                      isAddButton={true}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         navigate("new");
                       }}

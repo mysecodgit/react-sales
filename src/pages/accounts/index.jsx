@@ -27,11 +27,29 @@ import DeleteModal from "/src/components/Common/DeleteModal";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../services/axiosService";
-import { LoggedUserContext } from "../../App";
+import { LoggedUserContext, UrlActionContext } from "../../App";
 
 const Accounts = () => {
   //meta title
   document.title = "Accounts";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [account, setAccount] = useState();
   const [isLoading, setLoading] = useState(true);
@@ -195,37 +213,44 @@ const Accounts = () => {
           if (cellProps.row.original.isDefault) return null;
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setIsEdit(true);
-                  const userData = cellProps.row.original;
-                  console.log(userData);
-                  setAccount(userData);
-                  setIsNewModelOpen(true);
-                }}
-              >
-                <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-              </Link>
-              <Link
-                to="#"
-                className="text-danger"
-                onClick={() => {
-                  const userData = cellProps.row.original;
-                  console.log(userData);
-                  setAccount(userData);
-                  setDeleteModal(true);
-                }}
-              >
-                <i className="mdi mdi-delete font-size-18" id="deletetooltip" />
-              </Link>
+              {urlActions.includes("edit") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setIsEdit(true);
+                    const userData = cellProps.row.original;
+                    console.log(userData);
+                    setAccount(userData);
+                    setIsNewModelOpen(true);
+                  }}
+                >
+                  <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
+                </Link>
+              )}
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-danger"
+                  onClick={() => {
+                    const userData = cellProps.row.original;
+                    console.log(userData);
+                    setAccount(userData);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <i
+                    className="mdi mdi-delete font-size-18"
+                    id="deletetooltip"
+                  />
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   return (
@@ -255,7 +280,7 @@ const Accounts = () => {
                       isPagination={false}
                       SearchPlaceholder="Search..."
                       isCustomPageSize={false}
-                      isAddButton={true}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setAccount("");

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useContext } from "react";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 import TableContainer from "../../components/Common/TableContainer";
@@ -39,10 +39,29 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import moment from "moment/moment";
 import axiosInstance from "../../services/axiosService";
+import { UrlActionContext } from "../../App";
 
 const Users = () => {
   //meta title
   document.title = "Users";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [user, setUser] = useState();
   const [isLoading, setLoading] = useState(true);
@@ -216,35 +235,42 @@ const Users = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setIsEdit(true);
-                  const userData = cellProps.row.original;
-                  setUser(userData);
-                  setIsNewModelOpen(true);
-                }}
-              >
-                <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
-              </Link>
-              <Link
-                to="#"
-                className="text-danger"
-                onClick={() => {
-                  const userData = cellProps.row.original;
-                  setUser(userData);
-                  setDeleteModal(true);
-                }}
-              >
-                <i className="mdi mdi-delete font-size-18" id="deletetooltip" />
-              </Link>
+              {urlActions.includes("edit") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setIsEdit(true);
+                    const userData = cellProps.row.original;
+                    setUser(userData);
+                    setIsNewModelOpen(true);
+                  }}
+                >
+                  <i className="mdi mdi-pencil font-size-18" id="edittooltip" />
+                </Link>
+              )}
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-danger"
+                  onClick={() => {
+                    const userData = cellProps.row.original;
+                    setUser(userData);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <i
+                    className="mdi mdi-delete font-size-18"
+                    id="deletetooltip"
+                  />
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   return (
@@ -272,15 +298,15 @@ const Users = () => {
                       isGlobalFilter={true}
                       isPagination={false}
                       SearchPlaceholder="Search..."
-                      isCustomPageSize={true}
-                      isAddButton={true}
+                      isCustomPageSize={false}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setUser("");
                         setIsNewModelOpen(!isNewModalOpen);
                       }}
-                      buttonClass="btn btn-success btn-rounded waves-effect waves-light addContact-modal mb-2"
-                      buttonName="New Contact"
+                      buttonClass="btn btn-success btn-rounded-md waves-effect waves-light addContact-modal mb-2"
+                      buttonName="New User"
                       tableClass="align-middle table-nowrap table-hover dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
                       theadClass="table-light"
                       paginationWrapper="dataTables_paginate paging_simple_numbers pagination-rounded"
