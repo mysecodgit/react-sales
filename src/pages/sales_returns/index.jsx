@@ -29,11 +29,29 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
-import { LoggedUserContext } from "../../App";
+import { LoggedUserContext, UrlActionContext } from "../../App";
 
 const SalesReturns = () => {
   //meta title
   document.title = "Sales Returns";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [user, setUser] = useState();
 
@@ -205,18 +223,20 @@ const SalesReturns = () => {
           if (cellProps.row.original.status == "Prior") return null;
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setSale(cellProps.row.original);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm px-3">
-                  Cancel
-                </Button>
-              </Link>
+              {urlActions.includes("edit") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setSale(cellProps.row.original);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm px-3">
+                    Cancel
+                  </Button>
+                </Link>
+              )}
               <Link
                 to={`/sales-returns/invoice/${cellProps.row.original.id}`}
                 className="text-success"
@@ -230,7 +250,7 @@ const SalesReturns = () => {
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   return (
@@ -259,7 +279,7 @@ const SalesReturns = () => {
                       isPagination={false}
                       SearchPlaceholder="Search..."
                       isCustomPageSize={false}
-                      isAddButton={true}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         navigate("new");
                       }}

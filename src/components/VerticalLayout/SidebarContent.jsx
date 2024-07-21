@@ -12,12 +12,14 @@ import withRouter from "../Common/withRouter";
 //i18n
 import { withTranslation } from "react-i18next";
 import { useCallback } from "react";
+import { jwtDecode } from "jwt-decode";
 
 const SidebarContent = (props) => {
   const ref = useRef();
   const path = useLocation();
 
-  const userMenues = JSON.parse(localStorage.getItem("current_user_menue"));
+  const token = localStorage.getItem("accessToken");
+  const userMenues = jwtDecode(token).menues;
 
   const activateParentDropdown = useCallback((item) => {
     item.classList.add("active");
@@ -146,8 +148,8 @@ const SidebarContent = (props) => {
       <SimpleBar className="h-100" ref={ref}>
         <div id="sidebar-menu">
           <ul className="metismenu list-unstyled" id="side-menu">
-            {/* <li className="menu-title">{props.t("Menu")} </li> */}
-            {/* {userMenues.map((menu) => {
+            <li className="menu-title">{props.t("Menu")} </li>
+            {userMenues.map((menu) => {
               if (menu.url.length > 0) {
                 return (
                   <li>
@@ -178,7 +180,7 @@ const SidebarContent = (props) => {
                   </ul>
                 </li>
               );
-            })} */}
+            })}
 
             <li className="menu-title">{props.t("Old to be removed")} </li>
             <li>

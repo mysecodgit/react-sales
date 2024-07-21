@@ -48,6 +48,22 @@ const Sales = () => {
 
   const urlActions = useContext(UrlActionContext);
 
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
+
   const [purchase, setSale] = useState();
   const [isLoading, setLoading] = useState(false);
   // validation
@@ -218,44 +234,27 @@ const Sales = () => {
           else return <>$ 0</>;
         },
       },
-      // {
-      //   header: "Status",
-      //   accessorKey: "status",
-      //   enableColumnFilter: false,
-      //   enableSorting: true,
-      //   cell: (cell) => {
-      //     if (cell.row.original.status == "Prior")
-      //       return (
-      //         <Badge color="danger" className="me-1">
-      //           Cancelled
-      //         </Badge>
-      //       );
-      //     else
-      //       return (
-      //         <Badge color="warning" className="pending">
-      //           Pending
-      //         </Badge>
-      //       );
-      //   },
-      // },
+
       {
         header: "Action",
         cell: (cellProps) => {
           if (cellProps.row.original.status == "Prior") return null;
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setSale(cellProps.row.original);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm px-3">
-                  Cancel
-                </Button>
-              </Link>
+              {urlActions.includes("cancel") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setSale(cellProps.row.original);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm px-3">
+                    Cancel
+                  </Button>
+                </Link>
+              )}
               <Link
                 to={`/sales/invoice/${cellProps.row.original.id}`}
                 className="text-success"
@@ -269,24 +268,8 @@ const Sales = () => {
         },
       },
     ],
-    []
+    [urlActions]
   );
-
-  // if (urlActions) {
-  //   if (!urlActions.includes("view")) {
-  //     return (
-  //       <>
-  //         <div className="page-content">
-  //           <Container fluid>
-  //             <div className="alert alert-danger">
-  //               Not authorized to view this page
-  //             </div>
-  //           </Container>
-  //         </div>
-  //       </>
-  //     );
-  //   }
-  // }
 
   return (
     <React.Fragment>
@@ -314,7 +297,7 @@ const Sales = () => {
                       isPagination={false}
                       SearchPlaceholder="Search..."
                       isCustomPageSize={false}
-                      isAddButton={true}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         navigate("new");
                       }}

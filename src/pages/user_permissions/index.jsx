@@ -42,29 +42,38 @@ import moment from "moment/moment";
 import axiosInstance from "../../services/axiosService";
 import Select from "react-select";
 import { actions } from "react-table";
-import { UrlActionContext } from "../../App";
+import { UrlActionContext, LoggedUserContext } from "../../App";
 
 const UserPermissions = () => {
   //meta title
   document.title = "User Permissions";
 
+  const loggedUser = useContext(LoggedUserContext);
   const urlActions = useContext(UrlActionContext);
+  const [user, setUser] = useState(null);
 
-  if (urlActions) {
-    if (!urlActions.includes("view")) {
-      return (
-        <>
-          <div className="page-content">
-            <Container fluid>
-              <div className="alert alert-danger">
-                Not authorized to view this page
-              </div>
-            </Container>
-          </div>
-        </>
-      );
+  useEffect(() => {
+    if (loggedUser) {
+      console.log("logged user", loggedUser);
+      setUser(loggedUser);
     }
-  }
+  }, [loggedUser]);
+
+  // if (urlActions) {
+  //   if (!urlActions.includes("view")) {
+  //     return (
+  //       <>
+  //         <div className="page-content">
+  //           <Container fluid>
+  //             <div className="alert alert-danger">
+  //               Not authorized to view this page
+  //             </div>
+  //           </Container>
+  //         </div>
+  //       </>
+  //     );
+  //   }
+  // }
 
   const [users, setUsers] = useState();
   const [selectedUser, setSelectedUser] = useState(null);

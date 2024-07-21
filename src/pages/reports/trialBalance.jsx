@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Card, CardBody, Col, Container, Row, Table } from "reactstrap";
@@ -12,10 +12,29 @@ import logoDark from "../../assets/images/logo-dark.png";
 import logoLight from "../../assets/images/logo-light.png";
 import "../invoice.css";
 import axiosInstance from "../../services/axiosService";
+import { UrlActionContext } from "../../App";
 
 const TrialBalance = () => {
   //meta title
   document.title = "Trial Balance - Report";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   //Print the Invoice
   const printInvoice = () => {

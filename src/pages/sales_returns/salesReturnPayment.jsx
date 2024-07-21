@@ -30,11 +30,29 @@ import "react-toastify/dist/ReactToastify.css";
 import axiosInstance from "../../services/axiosService";
 import moment from "moment/moment";
 import Select from "react-select";
-import { LoggedUserContext } from "../../App";
+import { LoggedUserContext, UrlActionContext } from "../../App";
 
 const SalesReturnPayment = () => {
   //meta title
   document.title = "Sales Return Payment";
+
+  const urlActions = useContext(UrlActionContext);
+
+  if (urlActions) {
+    if (!urlActions.includes("view")) {
+      return (
+        <>
+          <div className="page-content">
+            <Container fluid>
+              <div className="alert alert-danger">
+                Not authorized to view this page
+              </div>
+            </Container>
+          </div>
+        </>
+      );
+    }
+  }
 
   const [user, setUser] = useState();
 
@@ -305,59 +323,63 @@ const SalesReturnPayment = () => {
         cell: (cellProps) => {
           return (
             <div className="d-flex gap-3">
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setIsEdit(true);
-                  setSaleId(cellProps.row.original.id);
-                  setSelectedCustomer({
-                    label: cellProps.row.original.customerName,
-                    value: cellProps.row.original.customerId,
-                  });
+              {urlActions.includes("edit") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setIsEdit(true);
+                    setSaleId(cellProps.row.original.id);
+                    setSelectedCustomer({
+                      label: cellProps.row.original.customerName,
+                      value: cellProps.row.original.customerId,
+                    });
 
-                  setSelectedBranch({
-                    label: cellProps.row.original.branchName,
-                    value: cellProps.row.original.branchId,
-                  });
+                    setSelectedBranch({
+                      label: cellProps.row.original.branchName,
+                      value: cellProps.row.original.branchId,
+                    });
 
-                  fetchRemainingBalance(cellProps.row.original.saleId);
+                    fetchRemainingBalance(cellProps.row.original.saleId);
 
-                  setSelectedInvoice({
-                    label: "SRT" + cellProps.row.original.salesReturnId,
-                    value: cellProps.row.original.salesReturnId,
-                  });
+                    setSelectedInvoice({
+                      label: "SRT" + cellProps.row.original.salesReturnId,
+                      value: cellProps.row.original.salesReturnId,
+                    });
 
-                  setPaidAmount(cellProps.row.original.amount);
-                  setSelectedBankAccount({
-                    label: cellProps.row.original.accountName,
-                    value: cellProps.row.original.accountId,
-                  });
-                  setIsNewModelOpen(true);
-                }}
-              >
-                <Button type="button" color="success" className="btn-sm">
-                  Edit
-                </Button>
-              </Link>
-              <Link
-                to="#"
-                className="text-success"
-                onClick={() => {
-                  setSaleId(cellProps.row.original.id);
-                  setDeleteModal(true);
-                }}
-              >
-                <Button type="button" color="danger" className="btn-sm">
-                  Delete
-                </Button>
-              </Link>
+                    setPaidAmount(cellProps.row.original.amount);
+                    setSelectedBankAccount({
+                      label: cellProps.row.original.accountName,
+                      value: cellProps.row.original.accountId,
+                    });
+                    setIsNewModelOpen(true);
+                  }}
+                >
+                  <Button type="button" color="success" className="btn-sm">
+                    Edit
+                  </Button>
+                </Link>
+              )}
+              {urlActions.includes("delete") && (
+                <Link
+                  to="#"
+                  className="text-success"
+                  onClick={() => {
+                    setSaleId(cellProps.row.original.id);
+                    setDeleteModal(true);
+                  }}
+                >
+                  <Button type="button" color="danger" className="btn-sm">
+                    Delete
+                  </Button>
+                </Link>
+              )}
             </div>
           );
         },
       },
     ],
-    []
+    [urlActions]
   );
 
   const resetForm = () => {
@@ -401,7 +423,7 @@ const SalesReturnPayment = () => {
                       isPagination={false}
                       SearchPlaceholder="Search..."
                       isCustomPageSize={false}
-                      isAddButton={true}
+                      isAddButton={urlActions.includes("create")}
                       handleUserClick={() => {
                         setIsEdit(false);
                         setIsNewModelOpen(true);
